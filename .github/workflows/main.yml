@@ -17,8 +17,7 @@ jobs:
           REMOTE_HOST: ${{ secrets.EC2_HOST }}
           REMOTE_USER: ${{ secrets.EC2_USERNAME }}
           REMOTE_PORT: ${{ secrets.PORT }}
-          SOURCE: '.'
-          TARGET: '/home/ubuntu/Web_Resume'
+
           ARGS: '-o StrictHostKeyChecking=no'
 
       - name: Clone repo
