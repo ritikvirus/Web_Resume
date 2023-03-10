@@ -2,8 +2,7 @@ name: connect to ec2 instance
 
 on:
   push:
-    branch: [main]
-    
+    branches: [main]
     
 jobs:
   deploy:
@@ -17,14 +16,13 @@ jobs:
         username: ${{ secrets.EC2_USERNAME }}
         key: ${{ secrets.EC2_SSH_KEY }}
         run: |
-          sudo cd /home/ubuntu/web-site
-          sudo rm -rf * \
-          sudo git clone https://github.com/ritikvirus/Web_Resume.git \
-          sudo rm -rf /var/www/html/* \
-          sudo mv * /var/www/html/
+          cd /home/ubuntu/web-site
+          rm -rf *
+          git clone https://github.com/ritikvirus/Web_Resume.git
+          rm -rf /var/www/html/*
+          mv * /var/www/html/
           
-
-    
+  
     - name: Restart Nginx Server
       uses: appleboy/ssh-action@master
       with:
