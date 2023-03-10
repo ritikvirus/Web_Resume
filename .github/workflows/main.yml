@@ -13,20 +13,19 @@ jobs:
       - name: Deploy code to EC2 Instance
         uses: easingthemes/ssh-deploy@v2.1.5
         with:
-          server: ${{ secrets.EC2_HOST }}
-          port: ${{ secrets.PORT }}
-          username: ${{ secrets.EC2_USERNAME }}
-          password: ${{ secrets.EC2_SSH_KEY }}
-          source: '.'
-          target: '/home/ubuntu/Web_Resume'
-          clean: true
+          SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
+          REMOTE_HOST: ${{ secrets.EC2_HOST }}
+          REMOTE_USER: ${{ secrets.EC2_USERNAME }}
+          REMOTE_PORT: ${{ secrets.PORT }}
+          SOURCE: '.'
+          TARGET: '/home/ubuntu/Web_Resume'
+          ARGS: '-o StrictHostKeyChecking=no'
 
       - name: Clone repo
         run: |
           cd /home/ubuntu/Web_Resume
-          sudo rm -rf .
           git clone https://github.com/ritikvirus/Web_Resume.git .
-      
+
       - name: Move files to /var/www/html
         run: sudo mv /home/ubuntu/Web_Resume/* /var/www/html/
 
