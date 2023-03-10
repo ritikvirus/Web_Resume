@@ -2,22 +2,33 @@ name: Deploy to EC2 Instance
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
-    env:
-      SSH_AUTH_SOCK: /tmp/ssh-XXXXXXzijz0Z/agent.1585
-      SSH_AGENT_PID: 1586
-
     steps:
-      - name: Setup SSH Connection
-        uses: webfactory/ssh-agent@v0.4.0
-        with:
-          ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
-      - name: Deploy code to EC2
-        run: |
-          ssh -o StrictHostKeyChecking=no ${EC2_USERNAME}@${EC2_HOST} "cd /home/ubuntu/Web_Resume && sudo rm -rf * && sudo rm -rf /var/www/html/* && git clone https://github.com/ritikvirus/Web_Resume.git && cd Web_Resume && sudo cp -r * /var/www/html/ && sudo service nginx restart"
+    - name: Install SSH
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ${{ secrets.EC2_USERNAME }}
+        key: ${{ secrets.EC2_SSH_KEY }}
+
+    - name: Remove old files from EC2 Instance
+      run: |
+        ssh ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'cd /home/ubuntu/Web_Resume && rm -rf *'
+        ssh ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'sudo rm -rf /var/www/html/*'
+
+    - name: Clone repository
+      run: |
+        ssh ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'cd /home/ubuntu/Web_Resume && git clone https://github.com/ritikvirus/Web_Resume.git'
+
+    - name: Copy files to /var/www/html
+      run: |
+        ssh ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'cd /home/ubuntu/Web_Resume/Web_Resume && sudo cp -r * /var/www/html'
+
+    - name: Restart Nginx
+      run: |
+        ssh ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'sudo systemctl restart nginx'
