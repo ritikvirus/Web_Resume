@@ -16,7 +16,7 @@ jobs:
         host: ${{ secrets.EC2_HOST }}
         username: ${{ secrets.EC2_USERNAME }}
         key: ${{ secrets.EC2_SSH_KEY }}
-        script: |
+        run: |
           sudo cd /home/ubuntu/web-site
           sudo rm -rf * \
           sudo git clone https://github.com/ritikvirus/Web_Resume.git \
