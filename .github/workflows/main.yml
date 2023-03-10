@@ -9,15 +9,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Connect to EC2 instance
+    - name: Connect to EC2 instance and update website
       uses: appleboy/ssh-action@master
       with:
         host: ${{ secrets.EC2_HOST }}
         username: ${{ secrets.EC2_USERNAME }}
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
-          chmod +x ./shell.sh
-          ./shell.sh
+          sudo rm -rf /home/ubuntu/web-site/*
+          sudo rm -rf /var/www/html/*
+          sudo git clone https://github.com/ritikvirus/Web_Resume.git /home/ubuntu/web-site/
+          sudo mv /home/ubuntu/web-site/* /var/www/html/
           
     - name: Restart Nginx server
       uses: appleboy/ssh-action@master
