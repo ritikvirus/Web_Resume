@@ -9,6 +9,10 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
 
+    env:
+      SSH_AUTH_SOCK: /tmp/ssh-XXXXXXzijz0Z/agent.1585
+      SSH_AGENT_PID: 1586
+
     steps:
       - name: Setup SSH Connection
         uses: webfactory/ssh-agent@v0.4.0
