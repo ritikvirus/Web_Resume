@@ -17,16 +17,12 @@ jobs:
         username: ${{ secrets.EC2_USERNAME }}
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
-          sudo rm -rf /var/www/html/*
+          sudo rm -rf /home/ubuntu/web-site/* \
+          sudo git clone https://github.com/ritikvirus/Web_Resume.git /home/ubuntu/Web-site \
+          sudo rm -rf /var/www/html/* \
+          sudo mv /home/ubuntu/* /var/www/html/
           
-    - name: Git Clone web-repo
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ secrets.EC2_HOST }}
-        username: ${{ secrets.EC2_USERNAME }}
-        key: ${{ secrets.EC2_SSH_KEY }}
-        script: |
-          git clone https://github.com/ritikvirus/Web_Resume.git /var/www/html/
+
     
     - name: Restart Nginx Server
       uses: appleboy/ssh-action@master
