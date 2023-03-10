@@ -9,18 +9,19 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - name: Clear /var/www/html directory
+    - name: Enter Directory
       uses: appleboy/ssh-action@master
       with:
         host: ${{ secrets.EC2_HOST }}
         username: ${{ secrets.EC2_USERNAME }}
         key: ${{ secrets.EC2_SSH_KEY }}
-        run: |
-          sudo rm -rf /var/www/html/*
-          cd /home/ubuntu/web-site
+        command: |
+          sudo cd /home/ubuntu/web-site/
+          sudo rm -rf *
           sudo git clone https://github.com/ritikvirus/Web_Resume.git
-          sudo mv Web_Resume/* /var/www/html/
-          
+          sudo rm -rf /var/www/html/*
+          sudo mv * /var/www/html/
+
     - name: Restart Nginx Server
       uses: appleboy/ssh-action@master
       with:
