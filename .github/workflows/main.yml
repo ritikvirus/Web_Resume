@@ -15,7 +15,7 @@ jobs:
         host: ${{ secrets.EC2_HOST }}
         username: ${{ secrets.EC2_USERNAME }}
         key: ${{ secrets.EC2_SSH_KEY }}
-        args: '-o StrictHostKeyChecking=no'
+        args: 'StrictHostKeyChecking=no'
 
     - name: Remove old files from EC2 Instance
       run: |
