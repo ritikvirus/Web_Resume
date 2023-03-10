@@ -18,7 +18,7 @@ jobs:
 
     - name: Remove old files from EC2 Instance
       run: |
-        ssh ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'cd /home/ubuntu/Web_Resume && rm -rf *'
+        ssh ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'cd /home/ubuntu/Web_Resume && sudo rm -rf *'
         ssh ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'sudo rm -rf /var/www/html/*'
 
     - name: Clone repository
