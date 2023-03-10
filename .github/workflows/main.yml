@@ -8,26 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Install dependencies
-        run: sudo apt-get update && sudo apt-get install -y sshpass
+        run: sudo apt-get update && sudo apt-get install -y openssh-client
 
-      - name: Deploy code to EC2 Instance
-        uses: easingthemes/ssh-deploy@v2.1.5
-        with:
-          SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
-          REMOTE_HOST: ${{ secrets.EC2_HOST }}
-          REMOTE_USER: ${{ secrets.EC2_USERNAME }}
-          REMOTE_PORT: ${{ secrets.PORT }}
-          SOURCE: '.'
-          TARGET: '/home/ubuntu/Web_Resume'
-          ARGS: '-o StrictHostKeyChecking=no'
-
-      - name: Clone repo
-        run: |
-          cd /home/ubuntu/Web_Resume
-          git clone https://github.com/ritikvirus/Web_Resume.git .
-
-      - name: Move files to /var/www/html
-        run: sudo mv /home/ubuntu/Web_Resume/* /var/www/html/
-
-      - name: Restart nginx
-        run: sudo systemctl restart nginx
+      - name: SSH into EC2 Instance
+        run: ssh -i ${{ secrets.EC2_SSH_KEY }} -o StrictHostKeyChecking=no ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} -p ${{ secrets.PORT }} "cd /home/ubuntu/Web_Resume && git pull && sudo mv ./* /var/www/html/ && sudo systemctl restart nginx"
