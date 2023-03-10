@@ -18,9 +18,8 @@ jobs:
         script: |
           sudo rm -rf /home/ubuntu/web-site/*
           sudo rm -rf /var/www/html/*
-          sudo cd /home/ubuntu/web-site
-          sudo git clone https://github.com/ritikvirus/Web_Resume.git 
-          sudo mv /home/ubuntu/web-site/* /var/www/html/
+          sudo git clone https://github.com/ritikvirus/Web_Resume.git /home/ubuntu/web-site/ 
+          sudo mv /home/ubuntu/web-site/Web_Resume/* /var/www/html/
           
     - name: Restart Nginx server
       uses: appleboy/ssh-action@master
