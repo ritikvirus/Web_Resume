@@ -1,11 +1,8 @@
-# Use Ubuntu as the base image
-FROM ubuntu:latest
-
-# Update packages and install Nginx
-RUN apt-get update && apt-get install -y nginx
+# Use a specific version of the Nginx base image
+FROM nginx:latest
 
 # Set the working directory inside the container
-WORKDIR /var/www/html
+WORKDIR /usr/share/nginx/html
 
 # Copy the local files to the working directory
 COPY . .
