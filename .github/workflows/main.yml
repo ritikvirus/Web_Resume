@@ -56,12 +56,14 @@ jobs:
             sudo docker rm springboot || true &&
             sudo docker run -d -p 8080:80 --name portfolio ritikvirus/portfolioubuntu:v${{ steps.increment_tag.outputs.tag }}
           '
+
+
       - name: Send WhatsApp notification
         env:
           TWILIO_SID: ${{ secrets.TWILIO_SID }}
           TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
           TWILIO_PHONE_NUMBER: ${{ secrets.TWILIO_PHONE_NUMBER }}
-          TARGET_PHONE_NUMBER: ${{ secrets.TARGET_PHONE_NUMBER }}
+          TARGET_PHONE_NUMBER: +918920279167  # Replace with your target phone number
           DOCKER_IMAGE_TAG: ${{ steps.increment_tag.outputs.tag }}
         run: |
           curl -XPOST https://api.twilio.com/2010-04-01/Accounts/${TWILIO_SID}/Messages.json \
