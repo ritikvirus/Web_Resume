@@ -9,7 +9,7 @@ on:
 
 jobs:
   build:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     
 
     steps:
@@ -53,6 +53,7 @@ jobs:
             sudo docker pull ritikvirus/portfolioubuntu:${{ steps.taggerDryRun.outputs.new_tag }} &&
             sudo docker rm springboot || true &&
             sudo docker run -d -p 8080:80 --name portfolio ritikvirus/portfolioubuntu:${{ steps.taggerDryRun.outputs.new_tag }}
+            echo ${{ github.sha }}
           '
 
 
@@ -61,7 +62,7 @@ jobs:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         uses: Ilshidur/action-discord@master
         with:
-          args: 'The Portfolio {{ EVENT_PAYLOAD.repository.full_name }} IMAGE_NAME:- ritikvirus/portfolioubuntu:${{ steps.taggerDryRun.outputs.new_tag }} URL :- https://ritikvirus.info has been deployed.'
+          args: 'The Portfolio {{ EVENT_PAYLOAD.repository.full_name }} IMAGE_NAME:- ritikvirus/portfolioubuntu:${{ steps.taggerDryRun.outputs.new_tag }} test ${{ github.sha }} URL :- https://ritikvirus.info has been deployed.'
 
 
       - name: Minor version for each merge
