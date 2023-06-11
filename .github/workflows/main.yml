@@ -17,28 +17,26 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Retrieve latest Docker image tag
-        id: get_tag
-        run: |
-          latest_tag=$(docker search ritikvirus/portfolioubuntu --limit 1 --no-trunc | awk -F':' '{print $NF}')
-          echo "::set-output name=tag::$latest_tag"
+        with:
+          fetch-depth: '0'
+      - name: Minor version for each merge
+        id: taggerDryRun
+        uses: anothrNick/github-tag-action@1.36.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
+          WITH_V: true
+          DRY_RUN: true
 
-      - name: Increment Docker image tag
-        id: increment_tag
-        run: |
-          current_tag="${{ steps.get_tag.outputs.tag }}"
-          incremented_tag=$((current_tag + 1))
-          echo "::set-output name=tag::$incremented_tag"
                        
         
       - name: Build Docker image
-        run: docker build -t ritikvirus/portfolioubuntu:v${{ steps.increment_tag.outputs.tag }} .
+        run: docker build -t ritikvirus/portfolioubuntu:v${{ steps.taggerDryRun.outputs.new_tag }} .
 
       - name: Log in to Docker Hub
         run: docker login -u ${{ secrets.D_USERNAME }} -p ${{ secrets.D_PASS }}
 
       - name: Push Docker image to Docker Hub
-        run: docker push ritikvirus/portfolioubuntu:v${{ steps.increment_tag.outputs.tag }}
+        run: docker push ritikvirus/portfolioubuntu:v${{ steps.taggerDryRun.outputs.new_tag }}
 
       - name: Deploy to EC2
         env:
@@ -52,9 +50,9 @@ jobs:
             sudo docker stop $(docker ps -a -q) &&
             sudo docker rm $(docker ps -a -q) &&
             sudo docker rmi -f $(docker images -q) &&
-            sudo docker pull ritikvirus/portfolioubuntu:v${{ steps.increment_tag.outputs.tag }} &&
+            sudo docker pull ritikvirus/portfolioubuntu:v${{ steps.taggerDryRun.outputs.new_tag }} &&
             sudo docker rm springboot || true &&
-            sudo docker run -d -p 8080:80 --name portfolio ritikvirus/portfolioubuntu:v${{ steps.increment_tag.outputs.tag }}
+            sudo docker run -d -p 8080:80 --name portfolio ritikvirus/portfolioubuntu:v${{ steps.taggerDryRun.outputs.new_tag }}
           '
 
 
@@ -63,4 +61,4 @@ jobs:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         uses: Ilshidur/action-discord@master
         with:
-          args: 'The project {{ EVENT_PAYLOAD.repository.full_name }} URL :- https://ritikvirus.info has been deployed.'
+          args: 'The Portfolio {{ EVENT_PAYLOAD.repository.full_name }} ritikvirus/portfolioubuntu:v${{ steps.taggerDryRun.outputs.new_tag }} URL :- https://ritikvirus.info has been deployed.'
