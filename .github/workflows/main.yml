@@ -1,35 +1,57 @@
-name: Deploy to EC2 Instance
+name: Deploy to Docker Hub
 
 on:
+  label:
+    types: [created, edited]
   push:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Install SSH
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ secrets.EC2_HOST }}
-        username: ${{ secrets.EC2_USERNAME }}
-        key: ${{ secrets.EC2_SSH_KEY }}
-        args: 'StrictHostKeyChecking=no'
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-    - name: Remove old files from EC2 Instance
-      run: |
-        ssh ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'cd /home/ubuntu/Web_Resume && rm -rf *'
-        ssh ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'sudo rm -rf /var/www/html/*'
+      - name: Retrieve latest Docker image tag
+        id: get_tag
+        run: |
+          latest_tag=$(docker search ritikvirus/portfolioubuntu --limit 1 --no-trunc | awk -F':' '{print $NF}')
+          echo "::set-output name=tag::$latest_tag"
 
-    - name: Clone repository
-      run: |
-        ssh ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'cd /home/ubuntu/Web_Resume && git clone https://github.com/ritikvirus/Web_Resume.git'
+      - name: Increment Docker image tag
+        id: increment_tag
+        run: |
+          current_tag="${{ steps.get_tag.outputs.tag }}"
+          incremented_tag=$((current_tag + 1))
+          echo "::set-output name=tag::$incremented_tag"
+                       
+        
+      - name: Build Docker image
+        run: docker build -t ritikvirus/portfolioubuntu:v${{ steps.increment_tag.outputs.tag }} .
 
-    - name: Copy files to /var/www/html
-      run: |
-        ssh ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'cd /home/ubuntu/Web_Resume/Web_Resume && sudo cp -r * /var/www/html'
+      - name: Log in to Docker Hub
+        run: docker login -u ${{ secrets.D_USERNAME }} -p ${{ secrets.D_PASS }}
 
-    - name: Restart Nginx
-      run: |
-        ssh ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'sudo systemctl restart nginx'
+      - name: Push Docker image to Docker Hub
+        run: docker push ritikvirus/portfolioubuntu:v${{ steps.increment_tag.outputs.tag }}
+
+      - name: Deploy to EC2
+        env:
+          PRIVATE_KEY: ${{ secrets.SSH_KEY }}
+          HOSTNAME: ${{ secrets.HOST_IP }}
+          USER_NAME: ${{ secrets.HOST_USER }}
+        run: |
+          echo "$PRIVATE_KEY" > key.pem && chmod 600 key.pem
+          ssh -o StrictHostKeyChecking=no -i key.pem ${USER_NAME}@${HOSTNAME} '
+            cd /home/ubuntu &&
+            sudo docker stop $(docker ps -a -q)
+            sudo docker rm $(docker ps -a -q)
+            sudo docker rmi -f $(docker images -q)
+            sudo docker pull ritikvirus/portfolioubuntu:v${{ steps.increment_tag.outputs.tag }} &&
+            sudo docker stop springboot || true &&
+            sudo docker rm springboot || true &&
+            sudo docker run -d -p 8080:80 --name portfolio ritikvirus/portfolioubuntu:v${{ steps.increment_tag.outputs.tag }}
+          '
