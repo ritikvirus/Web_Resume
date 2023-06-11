@@ -58,15 +58,9 @@ jobs:
           '
 
 
-      - name: Send WhatsApp notification
+      - name: Discord notification
         env:
-          TWILIO_SID: ${{ secrets.TWILIO_SID }}
-          TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
-          TWILIO_PHONE_NUMBER: ${{ secrets.TWILIO_PHONE_NUMBER }}
-          TARGET_PHONE_NUMBER: +918920279167  # Replace with your target phone number
-          DOCKER_IMAGE_TAG: ${{ steps.increment_tag.outputs.tag }}
-        run: |
-          curl -XPOST https://api.twilio.com/2010-04-01/Accounts/${TWILIO_SID}/Messages.json \
-            -d "From=${TWILIO_PHONE_NUMBER}" \
-            -d "To=${TARGET_PHONE_NUMBER}" \
-            -d "Body=The Docker image with tag ${DOCKER_IMAGE_TAG} has been successfully deployed to the EC2 instance."
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        uses: Ilshidur/action-discord@master
+        with:
+          args: 'The project {{ EVENT_PAYLOAD.repository.full_name }} has been deployed.'
