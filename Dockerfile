@@ -1,5 +1,5 @@
 # Use a specific version of the Nginx base image
-FROM nginx:1.25
+FROM nginx:latest
 
 # Set the working directory inside the container
 WORKDIR /usr/share/nginx/html
