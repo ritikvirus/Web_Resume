@@ -1,5 +1,8 @@
-# Use a specific version of the Nginx base image
-FROM nginx:latest
+# Use Alpine Linux as the base image
+FROM alpine:latest
+
+# Update packages and install Nginx
+RUN apk update && apk add nginx
 
 # Set the working directory inside the container
 WORKDIR /usr/share/nginx/html
