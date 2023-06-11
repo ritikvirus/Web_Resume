@@ -1,11 +1,11 @@
-# Use Alpine Linux as the base image
-FROM alpine:latest
+# Use Ubuntu as the base image
+FROM ubuntu:latest
 
 # Update packages and install Nginx
-RUN apk update && apk add nginx
+RUN apt-get update && apt-get install -y nginx
 
 # Set the working directory inside the container
-WORKDIR /usr/share/nginx/html
+WORKDIR /var/www/html
 
 # Copy the local files to the working directory
 COPY . .
