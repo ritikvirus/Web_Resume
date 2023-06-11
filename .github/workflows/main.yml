@@ -62,3 +62,11 @@ jobs:
         uses: Ilshidur/action-discord@master
         with:
           args: 'The Portfolio {{ EVENT_PAYLOAD.repository.full_name }} IMAGE_NAME:- ritikvirus/portfolioubuntu:${{ steps.taggerDryRun.outputs.new_tag }} URL :- https://ritikvirus.info has been deployed.'
+
+
+      - name: Minor version for each merge
+        id: taggerFinal
+        uses: anothrNick/github-tag-action@1.36.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WITH_V: true
